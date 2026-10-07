@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth bg-brand-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="La marca GitMug — cartel promocional, ficha de identidad, mini guía de estilo y estructura de contenidos." />
+  <title>La marca — GitMug</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              light: '#F5F5F2',
+              dark: '#111315',
+              blue: '#4F7CFF',
+              green: '#22C55E',
+              red: '#EF4444',
+              gray: '#7C8491',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { background-color: #111315; color: #F5F5F2; overflow-x: hidden; }
+    
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+      .reveal-up.is-visible { opacity: 1; transform: translateY(0); }
+      .stagger-1 { transition-delay: 0.1s; }
+      .stagger-2 { transition-delay: 0.2s; }
+      .stagger-3 { transition-delay: 0.3s; }
+    }
+    
+    #page-transition {
+      position: fixed; inset: 0; background: #111315; z-index: 9999; 
+      pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
+    }
+    #page-transition.active { opacity: 1; pointer-events: all; }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-brand-blue selection:text-white">
+
+  <!-- NAVBAR -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 text-brand-light">
+    <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
+      <a href="index.html" class="font-sans text-xl font-bold tracking-tighter" aria-label="GitMug Inicio">
+        GITMUG
+      </a>
+
+                  <!-- Desktop Nav -->
+      <nav aria-label="Navegación principal" class="hidden lg:flex items-center lg:gap-5 xl:gap-8 font-mono text-xs uppercase tracking-widest text-brand-gray">
+        <a href="producto.html" class="hover:text-brand-light transition-colors">Producto</a>
+        <a href="como-funciona.html" class="hover:text-brand-light transition-colors">Cómo funciona</a>
+        <a href="index.html#integraciones" class="hover:text-brand-light transition-colors">Integraciones</a>
+        <a href="marca.html" class="text-brand-light" aria-current="page">Marca</a>
+        <a href="presentacion.html" class="hover:text-brand-light transition-colors">Presentación</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+
+      <div class="hidden lg:block">
+        <a href="reserva.html" class="bg-brand-blue text-white px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-light hover:text-brand-dark transition-colors">
+          Comprar GitMug
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="menu-toggle" aria-expanded="false" class="lg:hidden text-brand-light p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    
+            <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden flex-col border-t border-white/10 bg-brand-dark px-6 py-8 h-screen fixed inset-0 top-20 z-40 overflow-y-auto">
+      <nav aria-label="Navegación móvil" class="flex flex-col gap-6 text-xl font-medium">
+        <a href="producto.html" class="text-brand-light">Producto</a>
+        <a href="como-funciona.html" class="text-brand-light">Cómo funciona</a>
+        <a href="index.html#integraciones" class="text-brand-light">Integraciones</a>
+        <a href="marca.html" class="text-brand-blue" aria-current="page">Marca</a>
+        <a href="presentacion.html" class="text-brand-light">Presentación</a>
+        <a href="contacto.html" class="text-brand-light">Contacto</a>
+        <a href="reserva.html" class="mt-8 bg-brand-light text-brand-dark py-4 text-center font-bold uppercase tracking-widest">Comprar GitMug</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="pt-24 pb-12">
+    <!-- ============ INTRO ============ -->
+    <section class="mx-auto max-w-6xl px-6 pt-16 pb-16 md:pt-24 md:pb-20">
+      <p class="reveal-up font-mono text-xs uppercase tracking-widest text-brand-blue">// la marca</p>
+      <h1 class="reveal-up stagger-1 mt-6 max-w-3xl text-5xl md:text-7xl font-black uppercase tracking-tighter">
+        Todo parece GitMug.<br><span class="text-brand-blue">A propósito.</span>
+      </h1>
+      <p class="reveal-up stagger-2 mt-8 max-w-xl text-lg font-mono leading-relaxed text-brand-gray">
+        Cartel promocional, ficha de identidad, mini guía de estilo y la estructura
+        de contenidos que elegimos. Las pruebas de las misiones 1 a 4, en una página.
+      </p>
+    </section>
+
+    <!-- ============ M1 · CARTEL ============ -->
+    <section class="border-t border-brand-gray/20">
+      <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <p class="font-mono text-xs uppercase tracking-widest text-brand-gray">// m1 — cartel promocional</p>
+        <h2 class="mt-5 max-w-2xl text-4xl font-black uppercase tracking-tighter text-brand-light">
+          Entra por los ojos.
+        </h2>
+
+        <div class="mt-12 grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+          <figure>
+            <div class="overflow-hidden border border-brand-gray/20 bg-black">
+              <img
+                src="img/cartel-gitmug.png"
+                alt="Cartel promocional de GitMug: termo negro sobre fondo oscuro con el titular Tu café caliente. Tu código a salvo y botón de reserva"
+                class="block h-auto w-full transition-opacity hover:opacity-90"
+              />
+            </div>
+            <figcaption class="mt-5 flex flex-wrap items-center justify-between gap-3">
+              <span class="font-mono text-[11px] uppercase tracking-widest text-brand-gray">pieza / cartel 4:5 · png</span>
+              <a href="img/cartel-gitmug.png" download="cartel-gitmug.png"
+                 class="group inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-brand-blue hover:text-brand-light transition-colors">
+                Descargar cartel
+                <span aria-hidden="true" class="transition-transform duration-300 group-hover:translate-y-0.5">↓</span>
+              </a>
+            </figcaption>
+          </figure>
+
+          <div>
+            <h3 class="text-2xl font-bold tracking-tight text-brand-light">Por qué funciona: 6 decisiones</h3>
+            <dl class="mt-8 space-y-8">
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">jerarquía</dt>
+                <dd class="text-base font-mono text-brand-gray">Titular de 72 px primero, promesa después y una sola acción al final. El ojo no duda.</dd>
+              </div>
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">contraste</dt>
+                <dd class="text-base font-mono text-brand-gray">Blanco sobre tinta casi negra, con un único acento verde en la palabra clave: «a salvo».</dd>
+              </div>
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">proximidad</dt>
+                <dd class="text-base font-mono text-brand-gray">Fecha de envío y botón de reserva viajan juntos: forman una sola unidad de decisión.</dd>
+              </div>
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">alineación</dt>
+                <dd class="text-base font-mono text-brand-gray">Todo el texto a la izquierda sobre la misma rejilla; el producto, a la derecha, la equilibra.</dd>
+              </div>
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">equilibrio</dt>
+                <dd class="text-base font-mono text-brand-gray">Masa visual del termo frente a masa tipográfica: ningún lado pesa más que el otro.</dd>
+              </div>
+              <div class="flex flex-col gap-2">
+                <dt class="font-mono text-sm font-bold text-brand-blue uppercase tracking-widest">aire</dt>
+                <dd class="text-base font-mono text-brand-gray">Espacio en blanco generoso alrededor. El vacío también comunica: esto es premium.</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ M2 · IDENTIDAD ============ -->
+    <section class="border-t border-brand-gray/20">
+      <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <p class="font-mono text-xs uppercase tracking-widest text-brand-gray">// m2 — ficha de identidad</p>
+        <h2 class="mt-5 max-w-2xl text-4xl font-black uppercase tracking-tighter text-brand-light">
+          Cinco colores. Dos voces.
+        </h2>
+
+        <h3 class="mt-16 font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Paleta · cada color tiene un trabajo</h3>
+        <ul class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          <li class="border border-brand-gray/20 bg-[#0A0B0C]">
+            <span aria-hidden="true" class="block h-20 bg-brand-light"></span>
+            <span class="block p-4"><span class="block font-mono text-xs font-bold text-brand-light uppercase">Lienzo · #F5F5F2</span><span class="mt-2 block text-xs font-mono text-brand-gray">Fondos. Que respire. (En modo claro)</span></span>
+          </li>
+          <li class="border border-brand-gray/20 bg-[#0A0B0C]">
+            <span aria-hidden="true" class="block h-20 bg-brand-dark"></span>
+            <span class="block p-4"><span class="block font-mono text-xs font-bold text-brand-light uppercase">Tinta · #111315</span><span class="mt-2 block text-xs font-mono text-brand-gray">Fondos oscuros y texto.</span></span>
+          </li>
+          <li class="border border-brand-gray/20 bg-[#0A0B0C]">
+            <span aria-hidden="true" class="block h-20 bg-brand-blue"></span>
+            <span class="block p-4"><span class="block font-mono text-xs font-bold text-brand-light uppercase">Acción · #4F7CFF</span><span class="mt-2 block text-xs font-mono text-brand-gray">Solo CTAs y enlaces.</span></span>
+          </li>
+          <li class="border border-brand-gray/20 bg-[#0A0B0C]">
+            <span aria-hidden="true" class="block h-20 bg-brand-green"></span>
+            <span class="block p-4"><span class="block font-mono text-xs font-bold text-brand-light uppercase">Passing · #22C55E</span><span class="mt-2 block text-xs font-mono text-brand-gray">Éxito y pipeline ok.</span></span>
+          </li>
+          <li class="border border-brand-gray/20 bg-[#0A0B0C]">
+            <span aria-hidden="true" class="block h-20 bg-brand-red"></span>
+            <span class="block p-4"><span class="block font-mono text-xs font-bold text-brand-light uppercase">Failing · #EF4444</span><span class="mt-2 block text-xs font-mono text-brand-gray">Errores. Nada más.</span></span>
+          </li>
+        </ul>
+        <p class="mt-6 font-mono text-[11px] text-brand-gray uppercase tracking-widest">+ gris secundario (#7C8491) de apoyo para bordes y texto. El verde y el rojo nunca decoran: siempre significan algo.</p>
+
+        <h3 class="mt-16 font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Tipografías · humana + máquina</h3>
+        <div class="mt-6 grid gap-6 md:grid-cols-2">
+          <div class="border border-brand-gray/20 bg-[#0A0B0C] p-8">
+            <p class="font-sans text-6xl font-black tracking-tight text-brand-light">Aa</p>
+            <p class="mt-6 font-mono text-xs font-bold uppercase tracking-widest text-brand-gray">Inter · titulares y texto</p>
+            <p class="mt-4 text-2xl font-bold tracking-tight text-brand-light">Hardware sobrio.</p>
+            <p class="mt-4 text-sm font-mono leading-relaxed text-brand-gray">Párrafos limpios con interlineado generoso. Cálida, legible, invisible. Identidad visual en mayúsculas.</p>
+          </div>
+          <div class="border border-brand-gray/20 bg-black p-8">
+            <p class="font-mono text-6xl font-medium text-brand-light">Aa</p>
+            <p class="mt-6 font-mono text-xs font-bold uppercase tracking-widest text-brand-gray">JetBrains Mono · código y etiquetas</p>
+            <p class="mt-4 font-mono text-sm uppercase tracking-widest text-brand-gray">// etiquetas, métricas y estado</p>
+            <p class="mt-4 font-mono text-sm uppercase tracking-widest text-brand-green">✓ pipeline passing</p>
+          </div>
+        </div>
+
+        <h3 class="mt-16 font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Botones · tres y un enlace</h3>
+        <div class="mt-6 flex flex-wrap items-center gap-6 border border-brand-gray/20 bg-[#0A0B0C] p-8">
+          <span class="bg-brand-blue text-white px-8 py-4 font-mono text-sm font-bold uppercase tracking-widest">Reservar GitMug</span>
+          <span class="bg-brand-light text-brand-dark px-8 py-4 font-mono text-sm font-bold uppercase tracking-widest">Reservar</span>
+          <span class="border border-brand-gray/40 text-brand-light px-8 py-4 font-mono text-sm uppercase tracking-widest">Restablecer vista</span>
+          <span class="font-mono text-xs font-bold uppercase tracking-widest text-brand-blue">Ver características →</span>
+        </div>
+        <p class="mt-6 font-mono text-[11px] uppercase tracking-widest text-brand-gray">regla: botones principales contundentes. El azul y blanco significan «avanzar».</p>
+      </div>
+    </section>
+
+    <!-- ============ M4 · GUÍA ============ -->
+    <section class="border-t border-brand-gray/20">
+      <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <p class="font-mono text-xs uppercase tracking-widest text-brand-gray">// m4 — mini guía de estilo</p>
+        <h2 class="mt-5 max-w-2xl text-4xl font-black uppercase tracking-tighter text-brand-light">
+          Pocas reglas. Siempre iguales.
+        </h2>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-2">
+          <div class="border border-brand-gray/20 bg-[#0A0B0C] p-8">
+            <h3 class="font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Tarjetas</h3>
+            <div class="mt-6 border border-brand-gray/20 bg-brand-dark p-6">
+              <p class="font-mono text-xs text-brand-gray uppercase tracking-widest">01</p>
+              <p class="mt-4 text-xl font-bold uppercase tracking-tight text-brand-light">Título claro</p>
+              <p class="mt-4 text-sm font-mono leading-relaxed text-brand-gray">Borde fino, sin radios excesivos, estilo tech industrial.</p>
+            </div>
+          </div>
+
+          <div class="border border-brand-gray/20 bg-[#0A0B0C] p-8">
+            <h3 class="font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Iconos · funcionales</h3>
+            <div class="mt-6 flex flex-wrap min-[360px]:flex-nowrap items-center gap-4">
+              <span class="inline-flex h-14 w-14 items-center justify-center border border-brand-gray/20 bg-brand-dark text-brand-light">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M7 21h10M8 8h8M8 12h5" /></svg>
+              </span>
+              <span class="inline-flex h-14 w-14 items-center justify-center border border-brand-gray/20 bg-brand-dark text-brand-light">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="3" /></svg>
+              </span>
+              <p class="min-[360px]:ml-4 font-mono text-sm text-brand-gray">Lineales, sin relleno, estilo dashboard.</p>
+            </div>
+          </div>
+
+          <div class="border border-brand-gray/20 bg-[#0A0B0C] p-8">
+            <h3 class="font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Imágenes</h3>
+            <ul class="mt-6 space-y-4 font-mono text-sm leading-relaxed text-brand-gray">
+              <li><strong class="font-bold text-brand-light uppercase tracking-widest">Formatos óptimos:</strong> uso de WebP/MP4.</li>
+              <li><strong class="font-bold text-brand-light uppercase tracking-widest">Alt descriptivo:</strong> toda imagen cuenta qué muestra.</li>
+              <li><strong class="font-bold text-brand-light uppercase tracking-widest">3D Realtime:</strong> el producto físico convertido a WebGL.</li>
+            </ul>
+          </div>
+
+          <div class="border border-brand-gray/20 bg-[#0A0B0C] p-8">
+            <h3 class="font-mono text-sm font-bold uppercase tracking-widest text-brand-gray">Espaciado y forma</h3>
+            <div class="mt-6 flex flex-wrap items-end gap-3" aria-hidden="true">
+              <span class="inline-block w-4 bg-brand-gray/20" style="height:4px"></span>
+              <span class="inline-block w-4 bg-brand-gray/40" style="height:8px"></span>
+              <span class="inline-block w-4 bg-brand-gray/60" style="height:16px"></span>
+              <span class="inline-block w-4 bg-brand-gray" style="height:24px"></span>
+              <span class="inline-block w-4 bg-brand-light" style="height:32px"></span>
+            </div>
+            <p class="mt-6 font-mono text-xs uppercase tracking-widest text-brand-gray">4 · 8 · 16 · 24 · 32 px — nada fuera de escala.</p>
+            <p class="mt-2 font-mono text-xs uppercase tracking-widest text-brand-gray">sin radios curvos pronunciados · diseño arquitectónico.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ M3 · ESTRUCTURA ============ -->
+    <section class="border-t border-brand-gray/20">
+      <div class="mx-auto max-w-6xl px-6 py-16 md:py-24">
+        <p class="font-mono text-xs uppercase tracking-widest text-brand-gray">// m3 — estructura de contenidos</p>
+        <h2 class="mt-5 max-w-2xl text-4xl font-black uppercase tracking-tighter text-brand-light">
+          Dos formas de contarlo. Elegimos una.
+        </h2>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-2">
+          <article class="border border-brand-gray/20 bg-brand-dark p-8 opacity-50 grayscale">
+            <p class="font-mono text-xs font-bold uppercase tracking-widest text-brand-gray">propuesta a · descartada</p>
+            <h3 class="mt-6 text-xl font-bold uppercase tracking-tight text-brand-light">Catálogo directo</h3>
+            <p class="mt-4 font-mono text-xs leading-loose text-brand-gray">// hero → precio → características → contacto</p>
+            <p class="mt-4 font-mono text-sm leading-relaxed text-brand-gray">Va al grano, pero pide dinero antes de explicar el valor. Y no tenemos precio: tenemos reserva conceptual.</p>
+          </article>
+
+          <article class="relative border-2 border-brand-blue bg-[#0A0B0C] p-8">
+            <p class="absolute -top-3 left-6 bg-brand-blue px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white">elegida</p>
+            <p class="font-mono text-xs font-bold uppercase tracking-widest text-brand-blue">propuesta b · en la web</p>
+            <h3 class="mt-6 text-xl font-bold uppercase tracking-tight text-brand-light">Historia primero</h3>
+            <p class="mt-4 font-mono text-xs leading-loose text-brand-gray">// hero + claim → 3D → vídeo → integraciones → características → reserva</p>
+            <p class="mt-4 font-mono text-sm leading-relaxed text-brand-light">El usuario entiende el valor antes de actuar. Una narrativa fluida y una sola acción principal: reservar.</p>
+          </article>
+        </div>
+
+        <div class="mt-16 text-center">
+          <a href="index.html" class="inline-block bg-brand-light text-brand-dark px-12 py-5 font-mono text-sm font-bold uppercase tracking-widest hover:bg-brand-blue hover:text-white transition-colors">
+            Ver la estructura en la web
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#0A0B0C] text-brand-gray py-12 px-6 lg:px-12 border-t border-brand-gray/10 font-mono text-xs uppercase tracking-widest">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+      <div class="font-sans text-2xl font-black text-brand-light tracking-tighter">GITMUG</div>
+      
+      <nav aria-label="Enlaces legales" class="flex flex-wrap justify-center gap-8">
+        <a href="producto.html" class="hover:text-brand-light transition-colors">Producto</a>
+        <a href="marca.html" class="text-brand-light transition-colors">Marca</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+      
+    </div>
+  </footer>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function toggleMenu() {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('flex');
+      document.body.style.overflow = !isExpanded ? 'hidden' : '';
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    mobileMenu.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') toggleMenu();
+    });
+
+    // Intersection Observer for reveals
+    document.addEventListener("DOMContentLoaded", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      document.querySelectorAll('.reveal-up, .reveal-fade').forEach(el => observer.observe(el));
+      
+      // Page Transition Logic
+      document.querySelectorAll('a[href]').forEach(a => {
+        if(a.hostname === window.location.hostname && !a.hash && a.target !== "_blank") {
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = a.href;
+            const overlay = document.getElementById('page-transition');
+            if (overlay) {
+              overlay.classList.add('active');
+              setTimeout(() => { window.location.href = target; }, 400);
+            } else {
+              window.location.href = target;
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

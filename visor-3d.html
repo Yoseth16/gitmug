@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  VISOR 3D REUTILIZABLE — código exacto extraído de index.html (GitMug)
+  ----------------------------------------------------------------------------
+  Para llevarlo a otra web copia estas 5 piezas, en este orden:
+    1/5  <script type="importmap">  (del <head>)
+    2/5  CSS del <style> (bloques "Motion seguro", "Borde con gradiente" y "Visor 3D")
+    3/5  HTML de la <section id="visor-3d">
+    4/5  <script type="module"> (el visor Three.js)
+    5/5  <script> vigilante (fallback si WebGL/CDN falla)
+  Dependencias: Tailwind CSS por CDN + conexión a jsdelivr (three@0.160.0).
+  Personaliza cambiando: colores LED (objeto LED), textos de drawScreen/drawLogo,
+  posición de cámara (camera.position.set) y textos del HTML.
+  ============================================================================
+-->
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Visor 3D reutilizable del termo GitMug — Three.js, órbita 360° y simulación de estado." />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Visor 3D reutilizable — GitMug</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f172a'/><text x='50' y='72' font-size='62' text-anchor='middle' font-family='monospace' font-weight='700' fill='%232563eb'>G</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ===== PIEZA 1/5: importmap de Three.js (copiar en el <head>) ===== -->
+  <!-- Three.js (visor 3D) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    /* ===== PIEZA 2/5: CSS del visor (copiar en tu <style>) ===== */
+    /* ---------- Motion seguro (a11y) ---------- */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+
+    /* ---------- Borde con gradiente (toque tecnológico) ---------- */
+    .gradient-edge { position: relative; }
+    .gradient-edge::before {
+      content: ""; position: absolute; inset: -1px; z-index: 1;
+      border-radius: inherit; padding: 1px;
+      background: linear-gradient(135deg, rgba(37,99,235,.75), rgba(16,185,129,.55) 35%, rgba(148,163,184,.12) 65%, rgba(239,68,68,.55));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+              mask-composite: exclude;
+      opacity: .5; transition: opacity .45s ease; pointer-events: none;
+    }
+    .gradient-edge:hover::before,
+    .gradient-edge:focus-within::before { opacity: 1; }
+
+    /* ---------- Visor 3D ---------- */
+    #gitmug-canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+    #gitmug-canvas:active { cursor: grabbing; }
+    #gitmug-canvas:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; }
+    .seg { border: 1px solid #e2e8f0; background: #fff; color: #475569; }
+    .seg:hover { border-color: #cbd5e1; color: #0f172a; }
+    .seg[data-pipeline="passing"][aria-pressed="true"] { background: #15803d; border-color: #15803d; color: #fff; box-shadow: 0 14px 28px -16px rgba(21,128,61,.9); }
+    .seg[data-pipeline="failing"][aria-pressed="true"] { background: #dc2626; border-color: #dc2626; color: #fff; box-shadow: 0 14px 28px -16px rgba(220,38,38,.9); }
+  </style>
+</head>
+
+<body class="bg-white text-slate-900 font-sans antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Ayuda de navegación de este archivo de ejemplo (opcional, NO copiar) -->
+  <p class="mx-auto max-w-6xl px-6 pt-6 font-mono text-xs text-slate-500">
+    <a href="index.html" class="rounded underline decoration-slate-300 underline-offset-2 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600">← Volver a GitMug</a>
+    <span aria-hidden="true"> · </span>archivo reutilizable: el visor empieza en “// 02 — visor 3d”.
+  </p>
+
+  <main>
+    <!-- ===== PIEZA 3/5: HTML del visor (copiar tal cual; cambia los textos si quieres) ===== -->
+    <!-- ============ VISOR 3D ============ -->
+    <section id="visor-3d" class="scroll-mt-20 border-t border-slate-200/80">
+      <div class="mx-auto max-w-6xl px-6 py-24 md:py-32">
+        <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20">
+
+          <!-- Texto + controles -->
+          <div>
+            <p class="font-mono text-[11px] uppercase tracking-[0.28em] text-slate-500 sm:text-xs">// 02 — visor 3d</p>
+            <h2 class="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
+              Inspecciónalo desde todos los ángulos.
+            </h2>
+            <p class="mt-5 max-w-md text-base leading-relaxed text-slate-600">
+              Gemelo digital del GitMug v0.9, renderizado en tu navegador.
+              Orbítalo con el ratón o el dedo y simula un fallo del pipeline
+              para ver cómo responde el anillo LED.
+            </p>
+
+            <div class="mt-8 flex flex-wrap items-center gap-3" role="group" aria-label="Simular estado del pipeline">
+              <button type="button" data-pipeline="passing" aria-pressed="true"
+                      class="seg inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-mono text-xs transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+                <span aria-hidden="true">●</span> passing
+              </button>
+              <button type="button" data-pipeline="failing" aria-pressed="false"
+                      class="seg inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-mono text-xs transition-all duration-300 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+                <span aria-hidden="true">●</span> failing
+              </button>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+              <button id="reset-view" type="button"
+                      class="inline-flex items-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-medium text-slate-600 transition-all duration-300 hover:border-slate-300 hover:text-slate-950 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+                Restablecer vista
+              </button>
+              <button id="spin-toggle" type="button" aria-pressed="true"
+                      class="inline-flex items-center rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-medium text-slate-600 transition-all duration-300 hover:border-slate-300 hover:text-slate-950 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2">
+                Rotación automática: on
+              </button>
+            </div>
+
+            <p id="viewer-status" role="status" class="mt-7 font-mono text-[11px] uppercase tracking-[0.18em] text-slate-500">
+              led: verde · pipeline passing
+            </p>
+            <p class="mt-2 font-mono text-[11px] text-slate-500">arrastra para orbitar</p>
+          </div>
+
+          <!-- Lienzo 3D -->
+          <div class="gradient-edge rounded-[2rem]">
+            <div class="relative overflow-hidden rounded-[2rem] border border-slate-200/80 bg-[radial-gradient(90%_90%_at_50%_15%,#ffffff_0%,#f1f5f9_100%)] shadow-[0_32px_80px_-40px_rgba(15,23,42,0.45)]">
+              <div id="viewer-3d" class="relative h-[420px] w-full sm:h-[540px]">
+                <canvas id="gitmug-canvas" tabindex="0" role="img" aria-label="Modelo 3D interactivo del termo GitMug. Arrastra para girarlo."></canvas>
+
+                <div id="viewer-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-8 w-8 animate-spin text-blue-600">
+                    <circle cx="12" cy="12" r="9" class="opacity-25" /><path d="M21 12a9 9 0 0 0-9-9" class="opacity-90" />
+                  </svg>
+                  <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-slate-500">cargando modelo…</p>
+                </div>
+
+                <div id="viewer-fallback" class="hidden absolute inset-0 flex-col items-center justify-center gap-4 p-8 text-center">
+                  <img src="img/gitmug-768.webp" alt="Foto del termo inteligente GitMug" width="768" height="1152" loading="lazy" decoding="async" class="h-48 w-auto rounded-2xl border border-slate-200 object-cover" />
+                  <p class="max-w-xs text-sm leading-relaxed text-slate-600">Tu navegador no pudo cargar el visor 3D. Aquí tienes la foto del producto.</p>
+                </div>
+              </div>
+              <p class="border-t border-slate-100 bg-white/70 px-6 py-3 text-center font-mono text-[11px] uppercase tracking-[0.25em] text-slate-500 backdrop-blur">modelo interactivo / webgl</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== PIEZA 4/5: el visor Three.js (copiar antes de </body>) ===== -->
+  <!-- ============ VISOR 3D (Three.js) ============ -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    const container = document.getElementById('viewer-3d');
+    const canvas = document.getElementById('gitmug-canvas');
+    const loading = document.getElementById('viewer-loading');
+    const fallback = document.getElementById('viewer-fallback');
+    const statusEl = document.getElementById('viewer-status');
+    const spinBtn = document.getElementById('spin-toggle');
+    const resetBtn = document.getElementById('reset-view');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function showFallback() {
+      loading.classList.add('hidden');
+      canvas.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      fallback.classList.add('flex');
+    }
+
+    try {
+      if (!window.WebGLRenderingContext) throw new Error('webgl no disponible');
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = false;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
+      camera.position.set(13, 12, 23);
+
+      try {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+        pmrem.dispose();
+      } catch (envErr) { /* las luces directas bastan */ }
+
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.85));
+
+      const key = new THREE.DirectionalLight(0xffffff, 2.4);
+      key.position.set(3, 16, 4);
+      scene.add(key);
+
+      const rim = new THREE.DirectionalLight(0x93c5fd, 1.1);
+      rim.position.set(-6, 4, -6);
+      scene.add(rim);
+
+      /* ---------- Termo ---------- */
+      const mug = new THREE.Group();
+      scene.add(mug);
+
+      const MAT = {
+        body: new THREE.MeshStandardMaterial({ color: 0x141518, roughness: 0.34, metalness: 0.6 }),
+        lid: new THREE.MeshStandardMaterial({ color: 0x1e2126, roughness: 0.5, metalness: 0.4 }),
+        dark: new THREE.MeshStandardMaterial({ color: 0x08090b, roughness: 0.7, metalness: 0.2 }),
+      };
+
+      function part(geo, mat, x, y, z) {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        m.castShadow = true;
+        m.receiveShadow = true;
+        return m;
+      }
+
+      mug.add(part(new THREE.CylinderGeometry(3.3, 2.95, 14, 96), MAT.body, 0, 7.6, 0)); // cuerpo
+      mug.add(part(new THREE.CylinderGeometry(2.95, 2.8, 0.7, 96), MAT.dark, 0, 0.35, 0)); // base
+      mug.add(part(new THREE.CylinderGeometry(3.45, 3.45, 1.7, 96), MAT.lid, 0, 15.45, 0)); // tapa
+      mug.add(part(new THREE.CylinderGeometry(3.45, 3.25, 0.9, 96), MAT.lid, 0, 16.7, 0)); // tapa sup.
+      mug.add(part(new THREE.CylinderGeometry(2.1, 2.1, 0.3, 64), MAT.dark, 0, 17.05, 0)); // boca
+
+      const groove = part(new THREE.TorusGeometry(3.45, 0.07, 16, 96), MAT.dark, 0, 14.75, 0);
+      groove.rotation.x = Math.PI / 2;
+      mug.add(groove);
+
+      /* ---------- Anillo LED ---------- */
+      const LED = { passing: 0x22c55e, failing: 0xef4444 };
+      const ledMat = new THREE.MeshBasicMaterial({ color: LED.passing });
+      const led = new THREE.Mesh(new THREE.TorusGeometry(2.9, 0.14, 24, 96), ledMat);
+      led.rotation.x = Math.PI / 2;
+      led.position.y = 1.35;
+      mug.add(led);
+
+      const ledLight = new THREE.PointLight(LED.passing, 30, 14, 2);
+      ledLight.position.set(0, 1.4, 0);
+      mug.add(ledLight);
+
+      /* ---------- Halo en el suelo ---------- */
+      const glowCanvas = document.createElement('canvas');
+      glowCanvas.width = glowCanvas.height = 256;
+      const gtx = glowCanvas.getContext('2d');
+      const grad = gtx.createRadialGradient(128, 128, 10, 128, 128, 128);
+      grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      gtx.fillStyle = grad;
+      gtx.fillRect(0, 0, 256, 256);
+      const glowMat = new THREE.MeshBasicMaterial({
+        map: new THREE.CanvasTexture(glowCanvas),
+        color: LED.passing, transparent: true, opacity: 0.5, depthWrite: false,
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.03;
+      scene.add(glow);
+
+      /* ---------- Sombra de contacto (falsa, siempre suave) ---------- */
+      const shadowCanvas = document.createElement('canvas');
+      shadowCanvas.width = shadowCanvas.height = 256;
+      const stx = shadowCanvas.getContext('2d');
+      const sgrad = stx.createRadialGradient(128, 128, 20, 128, 128, 126);
+      sgrad.addColorStop(0, 'rgba(15,23,42,0.42)');
+      sgrad.addColorStop(0.55, 'rgba(15,23,42,0.18)');
+      sgrad.addColorStop(1, 'rgba(15,23,42,0)');
+      stx.fillStyle = sgrad;
+      stx.fillRect(0, 0, 256, 256);
+      const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(10.5, 10.5),
+        new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = 0.015;
+      ground.scale.set(1.1, 0.9, 1);
+      ground.renderOrder = 1;
+      scene.add(ground);
+
+      /* ---------- Pantalla e-ink (panel curvo) ---------- */
+      const screenCanvas = document.createElement('canvas');
+      screenCanvas.width = 512;
+      screenCanvas.height = 320;
+      const screenTex = new THREE.CanvasTexture(screenCanvas);
+      screenTex.colorSpace = THREE.SRGBColorSpace;
+      screenTex.anisotropy = 8;
+
+      function drawScreen(state) {
+        const ok = state === 'passing';
+        const x = screenCanvas.getContext('2d');
+        x.fillStyle = '#e9e7e1';
+        x.fillRect(0, 0, 512, 320);
+        x.strokeStyle = '#1f2937';
+        x.lineWidth = 10;
+        x.strokeRect(8, 8, 496, 304);
+        x.fillStyle = '#6b7280';
+        x.font = '500 26px "JetBrains Mono", monospace';
+        x.fillText('GITMUG · OS 1.4', 40, 62);
+        x.fillStyle = '#111827';
+        x.font = '700 84px "JetBrains Mono", monospace';
+        x.fillText('PR #42', 38, 168);
+        x.fillStyle = ok ? '#15803d' : '#dc2626';
+        x.font = '600 52px "JetBrains Mono", monospace';
+        x.fillText(ok ? '✓ Approved' : '✕ Failing', 40, 246);
+        x.fillStyle = '#6b7280';
+        x.font = '400 25px "JetBrains Mono", monospace';
+        x.fillText('58 °C · e-ink · 7d', 40, 292);
+        screenTex.needsUpdate = true;
+      }
+
+      const bezelTheta = 3.0 / 3.25;
+      const bezel = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.25, 3.25, 2.12, 48, 1, true, -bezelTheta / 2, bezelTheta),
+        new THREE.MeshStandardMaterial({ color: 0x0a0b0d, roughness: 0.5, metalness: 0.3 })
+      );
+      bezel.position.y = 10.4;
+      mug.add(bezel);
+
+      const screenTheta = 2.7 / 3.27;
+      const screen = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.27, 3.27, 1.87, 48, 1, true, -screenTheta / 2, screenTheta),
+        new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false })
+      );
+      screen.position.y = 10.4;
+      mug.add(screen);
+
+      /* ---------- Logo ---------- */
+      const logoCanvas = document.createElement('canvas');
+      logoCanvas.width = 512;
+      logoCanvas.height = 128;
+      const logoTex = new THREE.CanvasTexture(logoCanvas);
+      logoTex.colorSpace = THREE.SRGBColorSpace;
+
+      function drawLogo() {
+        const x = logoCanvas.getContext('2d');
+        x.clearRect(0, 0, 512, 128);
+        x.fillStyle = 'rgba(229,231,235,0.92)';
+        x.font = '600 64px Inter, sans-serif';
+        x.textAlign = 'center';
+        x.textBaseline = 'middle';
+        x.fillText('GitMug', 256, 68);
+        logoTex.needsUpdate = true;
+      }
+
+      const logoTheta = 2.6 / 3.11;
+      const logo = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.11, 3.11, 0.65, 48, 1, true, -logoTheta / 2, logoTheta),
+        new THREE.MeshBasicMaterial({ map: logoTex, transparent: true, toneMapped: false })
+      );
+      logo.position.y = 6.3;
+      mug.add(logo);
+
+      drawScreen('passing');
+      drawLogo();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { drawScreen(pipeline); drawLogo(); });
+      }
+
+      /* ---------- Estado del pipeline ---------- */
+      let pipeline = 'passing';
+      function setPipeline(next) {
+        pipeline = next;
+        const color = LED[next];
+        ledMat.color.setHex(color);
+        ledLight.color.setHex(color);
+        glowMat.color.setHex(color);
+        drawScreen(next);
+        document.querySelectorAll('[data-pipeline]').forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.pipeline === next));
+        });
+        statusEl.textContent = next === 'passing'
+          ? 'led: verde · pipeline passing'
+          : 'led: rojo · pipeline failing';
+      }
+      document.querySelectorAll('[data-pipeline]').forEach((b) => {
+        b.addEventListener('click', () => setPipeline(b.dataset.pipeline));
+      });
+
+      /* ---------- Controles de órbita ---------- */
+      const controls = new OrbitControls(camera, canvas);
+      controls.target.set(0, 8.6, 0);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.enablePan = false;
+      controls.enableZoom = false;
+      controls.minPolarAngle = 0.55;
+      controls.maxPolarAngle = 1.62;
+      controls.autoRotate = !reduceMotion;
+      controls.autoRotateSpeed = 1.1;
+      controls.update();
+      controls.saveState();
+
+      let spinOn = !reduceMotion;
+      function setSpin(on) {
+        spinOn = on;
+        controls.autoRotate = on;
+        spinBtn.setAttribute('aria-pressed', String(on));
+        spinBtn.textContent = on ? 'Rotación automática: on' : 'Rotación automática: off';
+      }
+      if (reduceMotion) setSpin(false);
+      spinBtn.addEventListener('click', () => setSpin(!spinOn));
+      resetBtn.addEventListener('click', () => controls.reset());
+
+      let idleTimer = null;
+      controls.addEventListener('start', () => {
+        controls.autoRotate = false;
+        if (idleTimer) clearTimeout(idleTimer);
+      });
+      controls.addEventListener('end', () => {
+        if (idleTimer) clearTimeout(idleTimer);
+        if (spinOn && !reduceMotion) {
+          idleTimer = setTimeout(() => { controls.autoRotate = true; }, 2000);
+        }
+      });
+
+      /* ---------- Tamaño + bucle ---------- */
+      function resize() {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+      new ResizeObserver(resize).observe(container);
+      resize();
+
+      let ready = false;
+      renderer.setAnimationLoop(() => {
+        controls.update();
+        renderer.render(scene, camera);
+        if (!ready) {
+          ready = true;
+          window.__gitmug3dReady = true;
+          loading.classList.add('hidden');
+        }
+      });
+    } catch (err) {
+      showFallback();
+    }
+  </script>
+
+  <!-- ===== PIEZA 5/5: vigilante del fallback (copiar tras el módulo) ===== -->
+  <script>
+    window.setTimeout(function () {
+      if (!window.__gitmug3dReady) {
+        var l = document.getElementById('viewer-loading');
+        var c = document.getElementById('gitmug-canvas');
+        var f = document.getElementById('viewer-fallback');
+        if (l) l.classList.add('hidden');
+        if (c) c.classList.add('hidden');
+        if (f) { f.classList.remove('hidden'); f.classList.add('flex'); }
+      }
+    }, 8000);
+  </script>
+
+</body>
+</html>
+

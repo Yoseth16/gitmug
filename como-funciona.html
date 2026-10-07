@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth bg-brand-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cómo funciona GitMug — Estado de tu código en tu escritorio</title>
+  <meta name="description" content="Descubre cómo GitMug conecta tus repositorios de código y pipelines con tu escritorio mediante e-ink y anillos de estado LED." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              light: '#F5F5F2',
+              dark: '#111315',
+              blue: '#4F7CFF',
+              green: '#22C55E',
+              red: '#EF4444',
+              gray: '#7C8491',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #111315; color: #F5F5F2; overflow-x: hidden; }
+    
+    /* Typography */
+    .text-mega { font-size: clamp(3rem, 9vw, 8rem); line-height: 0.95; letter-spacing: -0.04em; }
+    .text-huge { font-size: clamp(2.5rem, 7vw, 6rem); line-height: 0.95; letter-spacing: -0.03em; }
+    @media (max-width: 359px) { .text-mega { font-size: 2.5rem; } }
+
+    /* 3D viewer constraints */
+    #gitmug-canvas { outline: none; cursor: grab; }
+    #gitmug-canvas:active { cursor: grabbing; }
+    #gitmug-canvas:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 4px; }
+  </style>
+
+  <!-- Premium Motion (FASE 1.5) -->
+  <style id="premium-motion">
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+      .reveal-up.is-visible { opacity: 1; transform: translateY(0); }
+      
+      .reveal-fade { opacity: 0; transition: opacity 1.2s ease-out; }
+      .reveal-fade.is-visible { opacity: 1; }
+      
+      .stagger-1 { transition-delay: 0.1s; }
+      .stagger-2 { transition-delay: 0.2s; }
+      .stagger-3 { transition-delay: 0.3s; }
+      .stagger-4 { transition-delay: 0.4s; }
+
+      .btn-premium { position: relative; overflow: hidden; z-index: 1; }
+      .btn-premium::before {
+        content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transform: skewX(-20deg); z-index: -1; transition: 0s;
+      }
+      .btn-premium:hover::before { left: 200%; transition: 0.7s ease-in-out; }
+
+      .hover-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease; }
+      .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: #4F7CFF; }
+      
+      .parallax-img { transition: transform 0.2s ease-out; transform: scale(1.05); }
+      
+      /* Subtle 3D viewer container parallax */
+      .viewer-parallax { transition: transform 0.2s ease-out; }
+    }
+    
+    #page-transition {
+      position: fixed; inset: 0; background: #111315; z-index: 9999; 
+      pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
+    }
+    #page-transition.active { opacity: 1; pointer-events: all; }
+  </style>
+</head><body class="font-sans antialiased selection:bg-brand-blue selection:text-white">
+<!-- NAVBAR -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 text-brand-light">
+    <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
+      <a href="index.html" class="font-sans text-xl font-bold tracking-tighter" aria-label="GitMug Inicio">
+        GITMUG
+      </a>
+
+                  <!-- Desktop Nav -->
+      <nav aria-label="Navegación principal" class="hidden lg:flex items-center lg:gap-5 xl:gap-8 font-mono text-xs uppercase tracking-widest text-brand-gray">
+        <a href="producto.html" class="hover:text-brand-light transition-colors">Producto</a>
+        <a href="como-funciona.html" class="text-brand-light" aria-current="page">Cómo funciona</a>
+        <a href="index.html#integraciones" class="hover:text-brand-light transition-colors">Integraciones</a>
+        <a href="marca.html" class="hover:text-brand-light transition-colors">Marca</a>
+        <a href="presentacion.html" class="hover:text-brand-light transition-colors">Presentación</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+
+      <div class="hidden lg:block">
+        <a href="reserva.html" class="bg-brand-blue text-white px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-light hover:text-brand-dark transition-colors">
+          Comprar GitMug
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="menu-toggle" aria-expanded="false" class="lg:hidden text-brand-light p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    
+            <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden flex-col border-t border-white/10 bg-brand-dark px-6 py-8 h-screen fixed inset-0 top-20 z-40 overflow-y-auto">
+      <nav aria-label="Navegación móvil" class="flex flex-col gap-6 text-xl font-medium">
+        <a href="producto.html" class="text-brand-light">Producto</a>
+        <a href="como-funciona.html" class="text-brand-blue" aria-current="page">Cómo funciona</a>
+        <a href="index.html#integraciones" class="text-brand-light">Integraciones</a>
+        <a href="marca.html" class="text-brand-light">Marca</a>
+        <a href="presentacion.html" class="text-brand-light">Presentación</a>
+        <a href="contacto.html" class="text-brand-light">Contacto</a>
+        <a href="reserva.html" class="mt-8 bg-brand-light text-brand-dark py-4 text-center font-bold uppercase tracking-widest">Comprar GitMug</a>
+      </nav>
+    </div>
+  </header>
+<main>
+  <!-- HERO SECTION -->
+  <section class="min-h-[70svh] w-full flex flex-col justify-center pt-32 pb-12 px-6 lg:px-12 bg-brand-dark text-brand-light border-b border-brand-gray/20">
+    <div class="max-w-5xl mx-auto w-full text-center">
+      <p class="font-mono text-xs md:text-sm tracking-widest uppercase text-brand-blue mb-8 reveal-up is-visible">GITMUG // SYSTEM</p>
+      <h1 class="text-mega font-black uppercase mb-8 leading-[0.9] reveal-up stagger-1 is-visible">De tu repositorio<br>a tu escritorio.</h1>
+      <p class="text-xl md:text-2xl font-mono text-brand-gray max-w-2xl mx-auto leading-relaxed reveal-up stagger-2 is-visible">GitMug conecta el estado de tus proyectos con una interfaz física que puedes ver sin cambiar constantemente de contexto.</p>
+    </div>
+  </section>
+
+  <!-- ARQUITECTURA -->
+  <section class="bg-[#111315] text-brand-light py-32 px-6 lg:px-12 border-b border-brand-gray/20">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col items-center justify-center gap-12 font-black uppercase text-center">
+        
+        <div class="flex flex-col sm:flex-row gap-6 sm:gap-16 text-4xl md:text-6xl text-brand-gray">
+          <div>GitHub</div>
+          <div>GitLab</div>
+          <div>Jira</div>
+        </div>
+        
+        <div class="flex flex-col items-center gap-4 text-brand-blue font-mono text-sm tracking-widest">
+          <div class="h-24 w-0.5 bg-brand-blue"></div>
+          <div class="border border-brand-blue/50 px-8 py-3 bg-brand-blue/10 font-bold">WEBHOOK SYNC</div>
+          <div class="h-24 w-0.5 bg-brand-blue"></div>
+          <div class="border-2 border-brand-blue px-8 py-3 bg-brand-blue text-white font-bold text-2xl">GITMUG</div>
+          <div class="h-24 w-0.5 bg-brand-blue"></div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-6 sm:gap-16 text-4xl md:text-6xl text-brand-light">
+          <div>E-INK DISPLAY</div>
+          <div class="hidden sm:block text-brand-blue">+</div>
+          <div>LED STATUS RING</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTADOS -->
+  <section class="bg-brand-dark text-brand-light py-32 px-6 lg:px-12 border-b border-brand-gray/20">
+    <div class="max-w-5xl mx-auto text-center">
+      <h2 class="text-4xl md:text-6xl font-black uppercase mb-6 reveal-up">Estados visuales</h2>
+      <p class="font-mono text-brand-gray text-lg mb-20 reveal-up stagger-1">El producto se adapta al estado de tu equipo.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono uppercase tracking-widest text-left">
+        
+        <div class="hover-lift p-10 bg-[#111315] border border-brand-gray/30 relative overflow-hidden reveal-up">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-bold text-brand-green">PASSING</h3>
+            <div class="w-6 h-6 rounded-full bg-brand-green shadow-[0_0_30px_rgba(34,197,94,0.6)]"></div>
+          </div>
+          <p class="text-sm text-brand-gray leading-relaxed normal-case">LED Verde. Indica que los tests han pasado, las builds han finalizado con éxito, o el sistema funciona correctamente.</p>
+        </div>
+
+        <div class="hover-lift p-10 bg-[#111315] border border-brand-gray/30 relative overflow-hidden reveal-up stagger-1">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-bold text-brand-red">FAILING</h3>
+            <div class="w-6 h-6 rounded-full bg-brand-red shadow-[0_0_30px_rgba(239,68,68,0.6)]"></div>
+          </div>
+          <p class="text-sm text-brand-gray leading-relaxed normal-case">LED Rojo. Indica fallos de compilación, tests rotos, o incidencias críticas creadas en Jira.</p>
+        </div>
+
+        <div class="hover-lift p-10 bg-[#111315] border border-brand-gray/30 relative overflow-hidden reveal-up stagger-2">
+          <div class="flex items-center justify-between mb-8">
+            <h3 class="text-2xl font-bold text-brand-blue">SYNCING</h3>
+            <div class="w-6 h-6 rounded-full bg-brand-blue shadow-[0_0_30px_rgba(79,124,255,0.6)] animate-pulse"></div>
+          </div>
+          <p class="text-sm text-brand-gray leading-relaxed normal-case">LED Azul. El sistema está sincronizando información y descargando datos a la pantalla e-ink.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EJEMPLO DE FLUJO -->
+  <section class="bg-[#111315] text-brand-light py-32 px-6 lg:px-12 border-b border-brand-gray/20 relative overflow-hidden">
+    <!-- Background Lifestyle Image (Opacity low) -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-20 reveal-fade">
+      <img src="imagen web/img1.jpeg" alt="GitMug Team" class="parallax-img w-full h-full object-cover"/>
+    </div>
+
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+      <h2 class="text-4xl md:text-6xl font-black uppercase mb-20 text-brand-light reveal-up">Flujo de información</h2>
+      
+      <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16 font-mono font-bold text-2xl lg:text-4xl uppercase tracking-widest text-brand-light bg-brand-dark/90 backdrop-blur-md p-12 lg:p-20 shadow-2xl border border-brand-gray/30 reveal-up stagger-1">
+        <div class="flex flex-col items-center">
+          <span class="text-brand-gray text-base mb-4">PULL REQUEST</span>
+          <span>PR #42</span>
+        </div>
+        <div class="text-brand-blue">↓</div>
+        <div class="flex flex-col items-center">
+          <span class="text-brand-gray text-base mb-4">ACCIÓN</span>
+          <span>APPROVED</span>
+        </div>
+        <div class="text-brand-blue">↓</div>
+        <div class="flex flex-col items-center">
+          <span class="text-brand-gray text-base mb-4">HARDWARE</span>
+          <span>GITMUG</span>
+        </div>
+        <div class="text-brand-blue">↓</div>
+        <div class="flex flex-col items-center">
+          <span class="text-brand-gray text-base mb-4">RESULTADO</span>
+          <span class="text-brand-green drop-shadow-[0_0_15px_rgba(34,197,94,0.4)]">LED GREEN</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="bg-brand-dark text-brand-light py-40 px-6 text-center border-t border-brand-gray/20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-5xl lg:text-7xl font-black uppercase mb-16 reveal-up">Tu código tiene un estado.<br>Ahora tu escritorio también.</h2>
+      <a href="producto.html" class="btn-premium reveal-up stagger-1 inline-block bg-brand-blue text-white px-12 py-6 text-xl font-bold uppercase tracking-widest hover:bg-brand-light hover:text-brand-dark transition-colors shadow-[0_0_40px_rgba(79,124,255,0.25)]">Ver GitMug</a>
+    </div>
+  </section>
+</main>
+<!-- FOOTER -->
+  <footer class="bg-[#0A0B0C] text-brand-gray py-12 px-6 lg:px-12 border-t border-brand-gray/10 font-mono text-xs uppercase tracking-widest">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+      <div class="font-sans text-2xl font-black text-brand-light tracking-tighter">GITMUG</div>
+      
+      <nav aria-label="Enlaces legales" class="flex flex-wrap justify-center gap-8">
+        <a href="producto.html" class="hover:text-brand-light transition-colors">Producto</a>
+        <a href="marca.html" class="hover:text-brand-light transition-colors">Marca</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+      
+    </div>
+  </footer>
+<script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    function toggleMenu() {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('flex');
+      document.body.style.overflow = !isExpanded ? 'hidden' : '';
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+    
+    mobileMenu.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') toggleMenu();
+    });
+  </script>
+
+  <!-- Premium Interactions (FASE 1.5) -->
+  <script id="premium-interaction">
+    document.addEventListener("DOMContentLoaded", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      
+      document.querySelectorAll('.reveal-up, .reveal-fade').forEach(el => observer.observe(el));
+
+      document.querySelectorAll('.btn-premium').forEach(btn => {
+        const originalText = btn.innerText;
+        btn.addEventListener('mouseenter', () => {
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            if(originalText.toUpperCase().includes('COMPRAR') || originalText.toUpperCase().includes('RESERVAR')) {
+              btn.innerText = 'INITIALIZING ORDER...';
+            } else if (originalText.toUpperCase().includes('CÓMO FUNCIONA') || originalText.toUpperCase().includes('VER GITMUG')) {
+              btn.innerText = 'OPENING SYSTEM...';
+            }
+          }
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.innerText = originalText;
+        });
+      });
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.addEventListener('scroll', () => {
+          const scrolled = window.scrollY;
+          document.querySelectorAll('.parallax-img').forEach(img => {
+            const limit = img.parentElement.offsetTop;
+            if (scrolled > limit - window.innerHeight) {
+              img.style.transform = `scale(1.05) translateY(${(scrolled - limit) * 0.05}px)`;
+            }
+          });
+        }, { passive: true });
+      }
+      
+      document.querySelectorAll('a[href]').forEach(a => {
+        if(a.hostname === window.location.hostname && !a.hash && a.target !== "_blank") {
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = a.href;
+            const overlay = document.getElementById('page-transition');
+            if (overlay) {
+              overlay.classList.add('active');
+              setTimeout(() => { window.location.href = target; }, 400);
+            } else {
+              window.location.href = target;
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+  
+

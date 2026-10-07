@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth bg-brand-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitMug — Producto</title>
+  <meta name="description" content="Descubre GitMug. Un producto tecnológico premium que transforma los estados de código en señales en tu escritorio." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              light: '#F5F5F2',
+              dark: '#111315',
+              blue: '#4F7CFF',
+              green: '#22C55E',
+              red: '#EF4444',
+              gray: '#7C8491',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    body { background-color: #111315; color: #F5F5F2; overflow-x: hidden; }
+    
+    /* Typography */
+    .text-mega { font-size: clamp(3rem, 9vw, 8rem); line-height: 0.95; letter-spacing: -0.04em; }
+    .text-huge { font-size: clamp(2.5rem, 7vw, 6rem); line-height: 0.95; letter-spacing: -0.03em; }
+
+    /* 3D viewer constraints */
+    #gitmug-canvas { outline: none; cursor: grab; }
+    #gitmug-canvas:active { cursor: grabbing; }
+    #gitmug-canvas:focus-visible { outline: 2px solid #4F7CFF; outline-offset: 4px; }
+  </style>
+
+  <!-- Premium Motion (FASE 1.5) -->
+  <style id="premium-motion">
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+      .reveal-up.is-visible { opacity: 1; transform: translateY(0); }
+      
+      .reveal-fade { opacity: 0; transition: opacity 1.2s ease-out; }
+      .reveal-fade.is-visible { opacity: 1; }
+      
+      .stagger-1 { transition-delay: 0.1s; }
+      .stagger-2 { transition-delay: 0.2s; }
+      .stagger-3 { transition-delay: 0.3s; }
+      .stagger-4 { transition-delay: 0.4s; }
+
+      .btn-premium { position: relative; overflow: hidden; z-index: 1; }
+      .btn-premium::before {
+        content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transform: skewX(-20deg); z-index: -1; transition: 0s;
+      }
+      .btn-premium:hover::before { left: 200%; transition: 0.7s ease-in-out; }
+
+      .hover-lift { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease; }
+      .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: #4F7CFF; }
+      
+      .parallax-img { transition: transform 0.2s ease-out; transform: scale(1.05); }
+      
+      /* Subtle 3D viewer container parallax */
+      .viewer-parallax { transition: transform 0.2s ease-out; }
+    }
+    
+    #page-transition {
+      position: fixed; inset: 0; background: #111315; z-index: 9999; 
+      pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
+    }
+    #page-transition.active { opacity: 1; pointer-events: all; }
+  </style>
+</head><body class="font-sans antialiased selection:bg-brand-blue selection:text-white">
+<!-- NAVBAR -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 text-brand-light">
+    <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
+      <a href="index.html" class="font-sans text-xl font-bold tracking-tighter" aria-label="GitMug Inicio">
+        GITMUG
+      </a>
+
+                  <!-- Desktop Nav -->
+      <nav aria-label="Navegación principal" class="hidden lg:flex items-center lg:gap-5 xl:gap-8 font-mono text-xs uppercase tracking-widest text-brand-gray">
+        <a href="producto.html" class="text-brand-light" aria-current="page">Producto</a>
+        <a href="como-funciona.html" class="hover:text-brand-light transition-colors">Cómo funciona</a>
+        <a href="index.html#integraciones" class="hover:text-brand-light transition-colors">Integraciones</a>
+        <a href="marca.html" class="hover:text-brand-light transition-colors">Marca</a>
+        <a href="presentacion.html" class="hover:text-brand-light transition-colors">Presentación</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+
+      <div class="hidden lg:block">
+        <a href="reserva.html" class="bg-brand-blue text-white px-6 py-2.5 font-mono text-xs font-bold uppercase tracking-widest hover:bg-brand-light hover:text-brand-dark transition-colors">
+          Comprar GitMug
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="menu-toggle" aria-expanded="false" class="lg:hidden text-brand-light p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+    
+            <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden flex-col border-t border-white/10 bg-brand-dark px-6 py-8 h-screen fixed inset-0 top-20 z-40 overflow-y-auto">
+      <nav aria-label="Navegación móvil" class="flex flex-col gap-6 text-xl font-medium">
+        <a href="producto.html" class="text-brand-blue" aria-current="page">Producto</a>
+        <a href="como-funciona.html" class="text-brand-light">Cómo funciona</a>
+        <a href="index.html#integraciones" class="text-brand-light">Integraciones</a>
+        <a href="marca.html" class="text-brand-light">Marca</a>
+        <a href="presentacion.html" class="text-brand-light">Presentación</a>
+        <a href="contacto.html" class="text-brand-light">Contacto</a>
+        <a href="reserva.html" class="mt-8 bg-brand-light text-brand-dark py-4 text-center font-bold uppercase tracking-widest">Comprar GitMug</a>
+      </nav>
+    </div>
+  </header>
+<main>
+  <!-- HERO SECTION -->
+  <section class="relative min-h-[100svh] w-full flex flex-col justify-center pt-24 pb-12 px-6 lg:px-12 bg-brand-dark overflow-hidden">
+    <div class="absolute inset-0 z-0 pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 md:left-2/3 -translate-y-1/2 -translate-x-1/2 w-[130vw] h-[130vw] md:w-[75vw] md:h-[75vw] pointer-events-auto">
+        <div id="viewer-3d" class="w-full h-full relative cursor-grab">
+          <canvas id="gitmug-canvas" class="w-full h-full block" tabindex="0" aria-label="GitMug 3D Viewer"></canvas>
+          <div id="viewer-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-4 text-brand-light">
+            <div class="font-mono text-sm tracking-widest uppercase animate-pulse">Initializing OS...</div>
+          </div>
+          <div id="viewer-fallback" class="hidden absolute inset-0 flex flex-col items-center justify-center text-brand-gray font-mono text-sm">
+            [ WebGL Fallback Active ]
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl w-full mx-auto mt-20 md:mt-0 pointer-events-none">
+      <p class="font-mono text-xs md:text-sm tracking-widest uppercase text-brand-blue mb-8 reveal-up is-visible pointer-events-auto w-max">GITMUG // PRODUCT</p>
+      <h1 class="text-mega font-black text-brand-light uppercase mb-8 reveal-up stagger-1 is-visible pointer-events-auto w-max">El estado de<br/>tu código.<br/>Sobre tu escritorio.</h1>
+      <p class="text-xl md:text-2xl font-mono text-brand-gray max-w-xl leading-relaxed mb-12 reveal-up stagger-2 is-visible pointer-events-auto w-max">GitMug convierte información de desarrollo en señales físicas mediante e-ink y LED.</p>
+      
+      <div class="flex flex-col sm:flex-row gap-6 font-mono text-sm uppercase tracking-widest reveal-up stagger-3 is-visible pointer-events-auto w-max">
+        <a href="reserva.html" class="btn-premium bg-brand-blue text-white px-10 py-5 font-bold hover:bg-brand-light hover:text-brand-dark transition-colors text-center shadow-[0_0_40px_rgba(79,124,255,0.25)]">Comprar GitMug</a>
+        <a href="como-funciona.html" class="btn-premium border border-brand-gray/40 text-brand-light px-10 py-5 hover:border-brand-blue hover:text-brand-blue transition-colors text-center bg-brand-dark/50 backdrop-blur-sm">Cómo funciona</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="grid lg:grid-cols-2 bg-brand-dark text-brand-light min-h-[60vh] border-b border-brand-gray/20">
+      <div class="p-10 lg:p-24 flex flex-col justify-center lg:border-r border-brand-light/10">
+        <div class="font-mono text-5xl lg:text-7xl font-black text-brand-gray/30 mb-8 lg:mb-16">01</div>
+        <h2 class="text-4xl lg:text-6xl font-black uppercase mb-6">E-Ink<br/>Display</h2>
+        <p class="text-lg lg:text-xl text-brand-gray font-mono leading-relaxed max-w-lg">Información importante, directamente sobre tu escritorio. Contraste absoluto que no daña la vista ni gasta batería.</p>
+      </div>
+      <div class="p-10 lg:p-24 flex items-center justify-center bg-[#111315] relative overflow-hidden">
+        <div class="font-mono text-3xl md:text-5xl font-bold bg-[#E9E7E1] text-[#111827] p-8 md:p-12 shadow-2xl z-10 border-[8px] border-[#1f2937]">
+          <div class="text-[#6b7280] text-sm md:text-lg mb-6">GITMUG · OS 1.4</div>
+          <div class="text-5xl md:text-7xl mb-8">PR #42</div>
+          <div class="text-[#15803d]">✓ APPROVED</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 bg-brand-dark text-brand-light min-h-[60vh] border-b border-brand-gray/20">
+      <div class="order-2 lg:order-1 p-10 lg:p-24 flex items-center justify-center bg-[#111315] relative overflow-hidden">
+        <div class="w-64 h-64 md:w-96 md:h-96 rounded-full border-[8px] border-brand-green shadow-[0_0_100px_rgba(34,197,94,0.3)] flex items-center justify-center">
+          <span class="font-mono text-brand-green font-bold text-xl uppercase tracking-widest">Passing</span>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2 p-10 lg:p-24 flex flex-col justify-center lg:border-l border-brand-light/10">
+        <div class="font-mono text-5xl lg:text-7xl font-black text-brand-gray/30 mb-8 lg:mb-16">02</div>
+        <h2 class="text-4xl lg:text-6xl font-black uppercase mb-6">Status<br/>Ring</h2>
+        <p class="text-lg lg:text-xl text-brand-gray font-mono leading-relaxed max-w-lg">Una señal física periférica para saber cuándo todo va bien. Un halo de luz que te alerta sin romper tu foco de trabajo.</p>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 bg-brand-dark text-brand-light min-h-[60vh]">
+      <div class="p-10 lg:p-24 flex flex-col justify-center lg:border-r border-brand-light/10">
+        <div class="font-mono text-5xl lg:text-7xl font-black text-brand-gray/30 mb-8 lg:mb-16">03</div>
+        <h2 class="text-4xl lg:text-6xl font-black uppercase mb-6">Smart<br/>Coffee Mug</h2>
+        <p class="text-lg lg:text-xl text-brand-gray font-mono leading-relaxed max-w-lg">El producto combina el uso cotidiano de una taza/termo con información visual del entorno de desarrollo.</p>
+      </div>
+      <div class="p-10 lg:p-24 flex flex-col items-center justify-center bg-[#111315] relative overflow-hidden">
+        <div class="font-mono text-[6rem] md:text-[10rem] font-black tracking-tighter leading-none text-brand-light">58°<span class="text-5xl md:text-7xl ml-2 text-brand-blue">C</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH SPECS -->
+  <section class="bg-[#111315] text-brand-light py-32 px-6 lg:px-12 border-t border-brand-gray/20">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-5xl lg:text-7xl font-black uppercase mb-20 tracking-tighter">GITMUG /<br>DEVELOPER EDITION</h2>
+      <div class="grid md:grid-cols-2 gap-12 font-mono uppercase tracking-widest text-lg md:text-xl font-bold">
+        <ul class="flex flex-col gap-8">
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-gray">E-ink display</li>
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-gray">LED status ring</li>
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-gray">Developer Edition</li>
+        </ul>
+        <ul class="flex flex-col gap-8">
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-blue">GitHub Integration</li>
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-blue">GitLab Integration</li>
+          <li class="border-b border-brand-gray/30 pb-4 text-brand-blue">Jira Integration</li>
+          <li class="border-b border-brand-gray/30 pb-4 mt-8 text-4xl text-brand-light">49 €</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="bg-brand-dark text-brand-light py-40 px-6 text-center border-t border-brand-gray/20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-5xl lg:text-7xl font-black uppercase mb-16">Tu próximo build<br>empieza aquí.</h2>
+      <a href="reserva.html" class="inline-block bg-brand-blue text-white px-12 py-6 text-xl font-bold uppercase tracking-widest hover:bg-brand-light hover:text-brand-dark transition-colors">Reservar GitMug</a>
+    </div>
+  </section>
+</main>
+<!-- FOOTER -->
+  <footer class="bg-[#0A0B0C] text-brand-gray py-12 px-6 lg:px-12 border-t border-brand-gray/10 font-mono text-xs uppercase tracking-widest">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+      <div class="font-sans text-2xl font-black text-brand-light tracking-tighter">GITMUG</div>
+      
+      <nav aria-label="Enlaces legales" class="flex flex-wrap justify-center gap-8">
+        <a href="producto.html" class="hover:text-brand-light transition-colors">Producto</a>
+        <a href="marca.html" class="hover:text-brand-light transition-colors">Marca</a>
+        <a href="contacto.html" class="hover:text-brand-light transition-colors">Contacto</a>
+      </nav>
+      
+      <div class="flex items-center gap-3 text-brand-blue bg-brand-blue/10 px-4 py-2 rounded-full">
+        <span class="w-2 h-2 rounded-full bg-brand-blue animate-pulse hidden" aria-hidden="true"></span>
+        <span class="hidden">System Ready</span>
+      </div>
+    </div>
+  </footer>
+<!-- ============ VISOR 3D (Three.js) ============ -->
+  <!-- ============ VISOR 3D (Three.js) ============ -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+    const container = document.getElementById('viewer-3d');
+    const canvas = document.getElementById('gitmug-canvas');
+    const loading = document.getElementById('viewer-loading');
+    const fallback = document.getElementById('viewer-fallback');
+    const statusEl = document.getElementById('viewer-status');
+    const spinBtn = document.getElementById('spin-toggle');
+    const resetBtn = document.getElementById('reset-view');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function showFallback() {
+      loading.classList.add('hidden');
+      canvas.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      fallback.classList.add('flex');
+    }
+
+    try {
+      if (!window.WebGLRenderingContext) throw new Error('webgl no disponible');
+
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = false;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.05;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 120);
+      camera.position.set(13, 12, 23);
+
+      try {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+        pmrem.dispose();
+      } catch (envErr) { /* las luces directas bastan */ }
+
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.85));
+
+      const key = new THREE.DirectionalLight(0xffffff, 2.4);
+      key.position.set(3, 16, 4);
+      scene.add(key);
+
+      const rim = new THREE.DirectionalLight(0x93c5fd, 1.1);
+      rim.position.set(-6, 4, -6);
+      scene.add(rim);
+
+      /* ---------- Termo ---------- */
+      const mug = new THREE.Group();
+      scene.add(mug);
+
+      const MAT = {
+        body: new THREE.MeshStandardMaterial({ color: 0x141518, roughness: 0.34, metalness: 0.6 }),
+        lid: new THREE.MeshStandardMaterial({ color: 0x1e2126, roughness: 0.5, metalness: 0.4 }),
+        dark: new THREE.MeshStandardMaterial({ color: 0x08090b, roughness: 0.7, metalness: 0.2 }),
+      };
+
+      function part(geo, mat, x, y, z) {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        m.castShadow = true;
+        m.receiveShadow = true;
+        return m;
+      }
+
+      mug.add(part(new THREE.CylinderGeometry(3.3, 2.95, 14, 96), MAT.body, 0, 7.6, 0)); // cuerpo
+      mug.add(part(new THREE.CylinderGeometry(2.95, 2.8, 0.7, 96), MAT.dark, 0, 0.35, 0)); // base
+      mug.add(part(new THREE.CylinderGeometry(3.45, 3.45, 1.7, 96), MAT.lid, 0, 15.45, 0)); // tapa
+      mug.add(part(new THREE.CylinderGeometry(3.45, 3.25, 0.9, 96), MAT.lid, 0, 16.7, 0)); // tapa sup.
+      mug.add(part(new THREE.CylinderGeometry(2.1, 2.1, 0.3, 64), MAT.dark, 0, 17.05, 0)); // boca
+
+      const groove = part(new THREE.TorusGeometry(3.45, 0.07, 16, 96), MAT.dark, 0, 14.75, 0);
+      groove.rotation.x = Math.PI / 2;
+      mug.add(groove);
+
+      /* ---------- Anillo LED ---------- */
+      const LED = { passing: 0x22c55e, failing: 0xef4444 };
+      const ledMat = new THREE.MeshBasicMaterial({ color: LED.passing });
+      const led = new THREE.Mesh(new THREE.TorusGeometry(2.9, 0.14, 24, 96), ledMat);
+      led.rotation.x = Math.PI / 2;
+      led.position.y = 1.35;
+      mug.add(led);
+
+      const ledLight = new THREE.PointLight(LED.passing, 30, 14, 2);
+      ledLight.position.set(0, 1.4, 0);
+      mug.add(ledLight);
+
+      /* ---------- Halo en el suelo ---------- */
+      const glowCanvas = document.createElement('canvas');
+      glowCanvas.width = glowCanvas.height = 256;
+      const gtx = glowCanvas.getContext('2d');
+      const grad = gtx.createRadialGradient(128, 128, 10, 128, 128, 128);
+      grad.addColorStop(0, 'rgba(255,255,255,0.85)');
+      grad.addColorStop(1, 'rgba(255,255,255,0)');
+      gtx.fillStyle = grad;
+      gtx.fillRect(0, 0, 256, 256);
+      const glowMat = new THREE.MeshBasicMaterial({
+        map: new THREE.CanvasTexture(glowCanvas),
+        color: LED.passing, transparent: true, opacity: 0.5, depthWrite: false,
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(11, 11), glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.03;
+      scene.add(glow);
+
+      /* ---------- Sombra de contacto (falsa, siempre suave) ---------- */
+      const shadowCanvas = document.createElement('canvas');
+      shadowCanvas.width = shadowCanvas.height = 256;
+      const stx = shadowCanvas.getContext('2d');
+      const sgrad = stx.createRadialGradient(128, 128, 20, 128, 128, 126);
+      sgrad.addColorStop(0, 'rgba(15,23,42,0.42)');
+      sgrad.addColorStop(0.55, 'rgba(15,23,42,0.18)');
+      sgrad.addColorStop(1, 'rgba(15,23,42,0)');
+      stx.fillStyle = sgrad;
+      stx.fillRect(0, 0, 256, 256);
+      const shadowTex = new THREE.CanvasTexture(shadowCanvas);
+
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(10.5, 10.5),
+        new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = 0.015;
+      ground.scale.set(1.1, 0.9, 1);
+      ground.renderOrder = 1;
+      scene.add(ground);
+
+      /* ---------- Pantalla e-ink (panel curvo) ---------- */
+      const screenCanvas = document.createElement('canvas');
+      screenCanvas.width = 512;
+      screenCanvas.height = 320;
+      const screenTex = new THREE.CanvasTexture(screenCanvas);
+      screenTex.colorSpace = THREE.SRGBColorSpace;
+      screenTex.anisotropy = 8;
+
+      function drawScreen(state) {
+        const ok = state === 'passing';
+        const x = screenCanvas.getContext('2d');
+        x.fillStyle = '#e9e7e1';
+        x.fillRect(0, 0, 512, 320);
+        x.strokeStyle = '#1f2937';
+        x.lineWidth = 10;
+        x.strokeRect(8, 8, 496, 304);
+        x.fillStyle = '#6b7280';
+        x.font = '500 26px "JetBrains Mono", monospace';
+        x.fillText('GITMUG · OS 1.4', 40, 62);
+        x.fillStyle = '#111827';
+        x.font = '700 84px "JetBrains Mono", monospace';
+        x.fillText('PR #42', 38, 168);
+        x.fillStyle = ok ? '#15803d' : '#dc2626';
+        x.font = '600 52px "JetBrains Mono", monospace';
+        x.fillText(ok ? '✓ Approved' : '✕ Failing', 40, 246);
+        x.fillStyle = '#6b7280';
+        x.font = '400 25px "JetBrains Mono", monospace';
+        x.fillText('58 °C · e-ink · 7d', 40, 292);
+        screenTex.needsUpdate = true;
+      }
+
+      const bezelTheta = 3.0 / 3.25;
+      const bezel = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.25, 3.25, 2.12, 48, 1, true, -bezelTheta / 2, bezelTheta),
+        new THREE.MeshStandardMaterial({ color: 0x0a0b0d, roughness: 0.5, metalness: 0.3 })
+      );
+      bezel.position.y = 10.4;
+      mug.add(bezel);
+
+      const screenTheta = 2.7 / 3.27;
+      const screen = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.27, 3.27, 1.87, 48, 1, true, -screenTheta / 2, screenTheta),
+        new THREE.MeshBasicMaterial({ map: screenTex, toneMapped: false })
+      );
+      screen.position.y = 10.4;
+      mug.add(screen);
+
+      /* ---------- Logo ---------- */
+      const logoCanvas = document.createElement('canvas');
+      logoCanvas.width = 512;
+      logoCanvas.height = 128;
+      const logoTex = new THREE.CanvasTexture(logoCanvas);
+      logoTex.colorSpace = THREE.SRGBColorSpace;
+
+      function drawLogo() {
+        const x = logoCanvas.getContext('2d');
+        x.clearRect(0, 0, 512, 128);
+        x.fillStyle = 'rgba(229,231,235,0.92)';
+        x.font = '600 64px Inter, sans-serif';
+        x.textAlign = 'center';
+        x.textBaseline = 'middle';
+        x.fillText('GitMug', 256, 68);
+        logoTex.needsUpdate = true;
+      }
+
+      const logoTheta = 2.6 / 3.11;
+      const logo = new THREE.Mesh(
+        new THREE.CylinderGeometry(3.11, 3.11, 0.65, 48, 1, true, -logoTheta / 2, logoTheta),
+        new THREE.MeshBasicMaterial({ map: logoTex, transparent: true, toneMapped: false })
+      );
+      logo.position.y = 6.3;
+      mug.add(logo);
+
+      drawScreen('passing');
+      drawLogo();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { drawScreen(pipeline); drawLogo(); });
+      }
+
+      /* ---------- Estado del pipeline (MODIFIED PREMIUM TRANSITION) ---------- */
+      let pipeline = 'passing';
+      let isTransitioning = false;
+
+      function setPipeline(next) {
+        if (isTransitioning || pipeline === next) return;
+        isTransitioning = true;
+        
+        // Phase 1: SYNCING
+        const syncingColor = 0x4f7cff; // Tech Blue
+        ledMat.color.setHex(syncingColor);
+        ledLight.color.setHex(syncingColor);
+        glowMat.color.setHex(syncingColor);
+        
+        let syncPulse = 0;
+        const pulseInterval = setInterval(() => {
+          syncPulse += 0.2;
+          ledLight.intensity = 30 + Math.sin(syncPulse) * 15;
+          glowMat.opacity = 0.5 + Math.sin(syncPulse) * 0.2;
+        }, 50);
+
+        if (statusEl) statusEl.textContent = 'SYS_MSG: SYSTEM SYNCING // PLEASE WAIT';
+
+        // Update button text temporarily
+        document.querySelectorAll('[data-pipeline]').forEach((b) => {
+          b.setAttribute('aria-pressed', 'false');
+          if (b.dataset.pipeline === next) {
+            b.classList.add('animate-pulse');
+          }
+        });
+
+        // Phase 2: Resolve to final state after 1.2s
+        setTimeout(() => {
+          clearInterval(pulseInterval);
+          ledLight.intensity = 30; // reset
+          glowMat.opacity = 0.5;
+
+          pipeline = next;
+          const color = LED[next];
+          ledMat.color.setHex(color);
+          ledLight.color.setHex(color);
+          glowMat.color.setHex(color);
+          drawScreen(next);
+          
+          document.querySelectorAll('[data-pipeline]').forEach((b) => {
+            b.classList.remove('animate-pulse');
+            b.setAttribute('aria-pressed', String(b.dataset.pipeline === next));
+          });
+          
+          if (statusEl) {
+            statusEl.textContent = next === 'passing'
+              ? 'SYS_MSG: LED GREEN // PIPELINE PASSING'
+              : (next === 'failing' ? 'SYS_MSG: LED RED // PIPELINE FAILING' : 'SYS_MSG: LED BLUE // SYNCING');
+          }
+            
+          isTransitioning = false;
+        }, 1200);
+      }
+      document.querySelectorAll('[data-pipeline]').forEach((b) => {
+        b.addEventListener('click', () => setPipeline(b.dataset.pipeline));
+      });
+
+      /* ---------- Controles de órbita ---------- */
+      const controls = new OrbitControls(camera, canvas);
+      controls.target.set(0, 8.6, 0);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.enablePan = false;
+      controls.enableZoom = false;
+      controls.minPolarAngle = 0.55;
+      controls.maxPolarAngle = 1.62;
+      controls.autoRotate = !reduceMotion;
+      controls.autoRotateSpeed = 1.1;
+      controls.update();
+      controls.saveState();
+
+      let spinOn = !reduceMotion;
+      function setSpin(on) {
+        spinOn = on;
+        controls.autoRotate = on;
+        if (spinBtn) {
+          spinBtn.setAttribute('aria-pressed', String(on));
+          spinBtn.textContent = on ? 'Rotación automática: on' : 'Rotación automática: off';
+        }
+      }
+      if (reduceMotion) setSpin(false);
+      if (spinBtn) spinBtn.addEventListener('click', () => setSpin(!spinOn));
+      if (resetBtn) resetBtn.addEventListener('click', () => controls.reset());
+
+      let idleTimer = null;
+      controls.addEventListener('start', () => {
+        controls.autoRotate = false;
+        if (idleTimer) clearTimeout(idleTimer);
+      });
+      controls.addEventListener('end', () => {
+        if (idleTimer) clearTimeout(idleTimer);
+        if (spinOn && !reduceMotion) {
+          idleTimer = setTimeout(() => { controls.autoRotate = true; }, 2000);
+        }
+      });
+
+      /* ---------- Tamaño + bucle ---------- */
+      function resize() {
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+      new ResizeObserver(resize).observe(container);
+      resize();
+
+      let ready = false;
+      renderer.setAnimationLoop(() => {
+        controls.update();
+        renderer.render(scene, camera);
+        if (!ready) {
+          ready = true;
+          window.__gitmug3dReady = true;
+          loading.classList.add('hidden');
+        }
+      });
+    } catch (err) {
+      showFallback();
+    }
+  </script>
+
+  <!-- ===== PIEZA 5/5: vigilante del fallback (copiar tras el módulo) ===== -->
+  <script>
+    window.setTimeout(function () {
+      if (!window.__gitmug3dReady) {
+        var l = document.getElementById('viewer-loading');
+        var c = document.getElementById('gitmug-canvas');
+        var f = document.getElementById('viewer-fallback');
+        if (l) l.classList.add('hidden');
+        if (c) c.classList.add('hidden');
+        if (f) { f.classList.remove('hidden'); f.classList.add('flex'); }
+      }
+    }, 8000);
+  </script>
+
+  <script>
+    // Menú móvil
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    function toggleMenu() {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      mobileMenu.classList.toggle('flex');
+      document.body.style.overflow = !isExpanded ? 'hidden' : '';
+    }
+    menuToggle.addEventListener('click', toggleMenu);
+    mobileMenu.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') toggleMenu();
+    });
+  </script>
+
+  <!-- Premium Interactions (FASE 1.5) -->
+  <script id="premium-interaction">
+    document.addEventListener("DOMContentLoaded", () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      
+      document.querySelectorAll('.reveal-up, .reveal-fade').forEach(el => observer.observe(el));
+
+      document.querySelectorAll('.btn-premium').forEach(btn => {
+        const originalText = btn.innerText;
+        btn.addEventListener('mouseenter', () => {
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            if(originalText.toUpperCase().includes('COMPRAR') || originalText.toUpperCase().includes('RESERVAR')) {
+              btn.innerText = 'INITIALIZING ORDER...';
+            } else if (originalText.toUpperCase().includes('CÓMO FUNCIONA') || originalText.toUpperCase().includes('VER GITMUG')) {
+              btn.innerText = 'OPENING SYSTEM...';
+            }
+          }
+        });
+        btn.addEventListener('mouseleave', () => {
+          btn.innerText = originalText;
+        });
+      });
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.addEventListener('scroll', () => {
+          const scrolled = window.scrollY;
+          document.querySelectorAll('.parallax-img').forEach(img => {
+            const limit = img.parentElement.offsetTop;
+            if (scrolled > limit - window.innerHeight) {
+              img.style.transform = `scale(1.05) translateY(${(scrolled - limit) * 0.05}px)`;
+            }
+          });
+        }, { passive: true });
+      }
+      
+      document.querySelectorAll('a[href]').forEach(a => {
+        if(a.hostname === window.location.hostname && !a.hash && a.target !== "_blank") {
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            const target = a.href;
+            const overlay = document.getElementById('page-transition');
+            if (overlay) {
+              overlay.classList.add('active');
+              setTimeout(() => { window.location.href = target; }, 400);
+            } else {
+              window.location.href = target;
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
