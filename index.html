@@ -102,7 +102,7 @@
   <!-- NAVBAR -->
   <header class="fixed top-0 inset-x-0 z-50 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 text-brand-light">
     <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
-      <a href="#" class="font-sans text-xl font-bold tracking-tighter" aria-label="GitMug Inicio">
+      <a href="index.html" class="font-sans text-xl font-bold tracking-tighter" aria-label="GitMug Inicio">
         GITMUG
       </a>
 
@@ -149,8 +149,8 @@
     <section class="relative min-h-[100svh] w-full flex flex-col justify-center pt-24 pb-12 px-6 lg:px-12 bg-brand-dark overflow-hidden">
       
       <!-- 3D Viewer Base Structure -->
-      <div class="absolute inset-0 z-0 pointer-events-none">
-        <div class="absolute top-1/2 left-1/2 md:left-2/3 -translate-y-1/2 -translate-x-1/2 w-[130vw] h-[130vw] md:w-[75vw] md:h-[75vw] pointer-events-auto">
+      <div class="relative h-[min(92vw,26rem)] md:h-auto md:absolute md:inset-0 z-0 pointer-events-none">
+        <div class="absolute top-1/2 left-1/2 md:left-2/3 -translate-y-1/2 -translate-x-1/2 w-full h-full md:w-[75vw] md:h-[75vw] pointer-events-auto">
           <div id="viewer-3d" class="w-full h-full relative cursor-grab">
             <canvas id="gitmug-canvas" class="w-full h-full block" tabindex="0" aria-label="GitMug 3D Viewer"></canvas>
             <div id="viewer-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-4 text-brand-light">
@@ -164,7 +164,7 @@
       </div>
 
       <!-- Typography -->
-      <div class="relative z-10 max-w-7xl w-full mx-auto mt-20 md:mt-0">
+      <div class="relative z-10 max-w-7xl w-full mx-auto mt-8 md:mt-0">
         <p class="font-mono text-xs md:text-sm tracking-widest uppercase text-brand-blue mb-8 reveal-up is-visible">EDICIÓN PARA DESARROLLADORES | INTERFAZ FÍSICA</p>
         
         <h1 class="text-mega font-black text-brand-light uppercase mb-8 reveal-up stagger-1 is-visible">
@@ -373,7 +373,7 @@
         <p class="font-mono text-brand-gray text-lg mb-16">El estado de tu código, reducido a una mirada.</p>
 
         <!-- E-Ink Display Mockup -->
-        <div id="eink-container" class="mx-auto w-full max-w-[420px] aspect-[1.6] bg-[#e9e7e1] border-[12px] border-[#1f2937] rounded-xl shadow-2xl relative overflow-hidden flex flex-col p-6 text-[#111827] text-left relative after:content-[''] after:absolute after:inset-0 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9InRyYW5zcGFyZW50Ii8+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiLz48L3N2Zz4=')] after:opacity-50 after:pointer-events-none transition-all">
+        <div id="eink-container" class="mx-auto w-full max-w-[420px] aspect-[1.6] min-h-[22rem] bg-[#e9e7e1] border-[12px] border-[#1f2937] rounded-xl shadow-2xl relative overflow-hidden flex flex-col p-6 text-[#111827] text-left relative after:content-[''] after:absolute after:inset-0 after:bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9InRyYW5zcGFyZW50Ii8+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMCwwLDAsMC4wNSkiLz48L3N2Zz4=')] after:opacity-50 after:pointer-events-none transition-all">
           
           <div class="flex justify-between items-center mb-auto border-b border-[#111827]/10 pb-2">
             <span class="font-mono text-sm font-bold text-[#6b7280]">GITMUG · OS 1.4</span>
@@ -920,6 +920,8 @@
       controls.maxPolarAngle = 1.62;
       controls.autoRotate = !reduceMotion;
       controls.autoRotateSpeed = 1.1;
+      // En móvil el scroll vertical de la página no debe quedar atrapado por el canvas
+      if (window.matchMedia('(max-width: 767px)').matches) canvas.style.touchAction = 'pan-y';
       controls.update();
       controls.saveState();
 
